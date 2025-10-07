@@ -1,0 +1,90 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Django ---
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+static/
+*.mo
+
+# --- Migrations (можно исключить, если не нужно хранить их в репо на этапе разработки)
+# **/migrations/
+# !**/migrations/__init__.py
+
+# --- Environment ---
+.env
+.env.*
+*.env
+!.env.example
+
+# --- Virtualenv ---
+.venv/
+venv/
+ENV/
+env/
+build/
+develop-eggs/
+.eggs/
+dist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-log.txt
+
+# --- Celery ---
+celerybeat-schedule
+celerybeat.pid
+
+# --- Redis dumps ---
+dump.rdb
+
+# --- IDE & Editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+*~
+
+# --- Coverage & Tests ---
+.coverage
+coverage.xml
+htmlcov/
+pytest_cache/
+.tox/
+nosetests.xml
+junit.xml
+
+# --- Reports & Docs ---
+*.rst~
+docs/_build/
+site/
+
+# --- Byte-compiled / optimized / DLL files ---
+*.pyo
+*.pyd
+*.dll
+*.so
+*.dylib
+
+# --- OS-specific ---
+.DS_Store
+Thumbs.db
+
+# --- Poetry ---
+poetry.lock
+# (Можно закомментировать строку выше, если хочешь фиксировать версии зависимостей)
+
+# --- Docker / Deployment ---
+*.pid
+logs/
+*.log
+__debug_bin
+*.db
