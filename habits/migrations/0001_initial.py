@@ -26,8 +26,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("place", models.CharField(max_length=255, verbose_name="Место")),
-                ("time", models.TimeField(verbose_name="Время")),
+                ("place", models.CharField(max_length=255,
+                                           verbose_name="Место")),
+                ("time", models.TimeField(
+                    verbose_name="Время")),
                 ("action", models.CharField(max_length=255, verbose_name="Действие")),
                 (
                     "is_pleasant",

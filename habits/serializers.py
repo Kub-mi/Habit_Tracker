@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import Habit
+
 
 class HabitSerializer(serializers.ModelSerializer):
     # пользователь берётся из текущего запроса, не из входных данных
@@ -43,11 +45,16 @@ class HabitSerializer(serializers.ModelSerializer):
             # create
             inst_data = {**attrs}
             # user гарантирован HiddenField, но на всякий случай:
-            if "user" not in inst_data and self.context.get("request") and self.context["request"].user.is_authenticated:
+            if (
+                "user" not in inst_data
+                and self.context.get("request")
+                and self.context["request"].user.is_authenticated
+            ):
                 inst_data["user"] = self.context["request"].user
 
         temp = Habit(**inst_data)
-        # если это update — выставим pk, чтобы корректно работала проверка самоссылки
+        # если это update — выставим pk, чтобы корректно
+        # работала проверка самоссылки
         if self.instance:
             temp.pk = self.instance.pk
 

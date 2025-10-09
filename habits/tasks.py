@@ -1,9 +1,10 @@
 from celery import shared_task
 from django.utils import timezone
-from django.db.models import Q
+
+from telegramer.services import send_telegram_message
 
 from .models import Habit
-from telegramer.services import send_telegram_message
+
 
 @shared_task(bind=True, max_retries=2, default_retry_delay=30)
 def send_habit_reminders(self):
@@ -44,4 +45,7 @@ def send_habit_reminders(self):
             send_telegram_message(chat_id, text)
         except Exception as e:
             # Логируем и идём дальше; при желании можно self.retry()
+            from django.utils.log import getLogger
+            logger = getLogger(__name__)
+            logger.warning(f"Не удалось отправить напоминание пользователю {h.user_id}: {e}")
             continue

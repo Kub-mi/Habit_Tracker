@@ -29,8 +29,9 @@ class Habit(models.Model):
     action = models.CharField("Действие", max_length=255)
 
     is_pleasant = models.BooleanField(
-        "Признак приятной привычки", default=False,
-        help_text="Если включено — это приятная (вознаграждающая) привычка."
+        "Признак приятной привычки",
+        default=False,
+        help_text="Если включено — это приятная (вознаграждающая) привычка.",
     )
 
     linked_habit = models.ForeignKey(
@@ -40,27 +41,34 @@ class Habit(models.Model):
         blank=True,
         related_name="dependent_habits",
         verbose_name="Связанная привычка",
-        help_text="Должна ссылаться на ПРИЯТНУЮ привычку. Используется для полезных привычек.",
+        help_text="Должна ссылаться на ПРИЯТНУЮ привычку. "
+                  "Используется для полезных привычек.",
     )
 
     periodicity_days = models.PositiveSmallIntegerField(
-        "Периодичность (дней)", default=1,
-        help_text="От 1 до 7 дней. Нельзя реже, чем раз в 7 дней."
+        "Периодичность (дней)",
+        default=1,
+        help_text="От 1 до 7 дней. Нельзя реже, чем раз в 7 дней.",
     )
 
     reward = models.CharField(
-        "Вознаграждение", max_length=255, null=True, blank=True,
-        help_text="Текстовое вознаграждение. Не заполняется, если указана связанная приятная привычка."
+        "Вознаграждение",
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Текстовое вознаграждение. "
+                  "Не заполняется, если указана связанная приятная привычка.",
     )
 
     duration_sec = models.PositiveSmallIntegerField(
-        "Время на выполнение (сек)", default=60,
-        help_text="Не более 120 секунд."
+        "Время на выполнение (сек)",
+        default=60, help_text="Не более 120 секунд."
     )
 
     is_public = models.BooleanField(
-        "Публичная", default=False,
-        help_text="Если включено — привычка видна в общем списке."
+        "Публичная",
+        default=False,
+        help_text="Если включено — привычка видна в общем списке.",
     )
 
     created_at = models.DateTimeField("Создана", auto_now_add=True)
@@ -88,11 +96,18 @@ class Habit(models.Model):
         """
         # 1) 0 < duration_sec <= 120
         if self.duration_sec is None or self.duration_sec > 120:
-            raise ValidationError({"duration_sec": "Время выполнения должно быть не больше 120 секунд."})
+            raise ValidationError(
+                {"duration_sec": "Время выполнения должно быть "
+                                 "не больше 120 секунд."}
+            )
 
         # 2) 1 <= periodicity_days <= 7
         if self.periodicity_days is None or not (1 <= self.periodicity_days <= 7):
-            raise ValidationError({"periodicity_days": "Нельзя выполнять привычку реже, чем 1 раз в 7 дней."})
+            raise ValidationError(
+                {
+                    "periodicity_days": "Нельзя выполнять привычку реже, чем 1 раз в 7 дней."
+                }
+            )
 
         # Нормализуем reward для удобства проверок
         reward_filled = bool(self.reward and str(self.reward).strip())
@@ -100,22 +115,36 @@ class Habit(models.Model):
         # 3) Приятная привычка: не может иметь reward или linked_habit
         if self.is_pleasant:
             if reward_filled:
-                raise ValidationError({"reward": "У приятной привычки не может быть вознаграждения."})
+                raise ValidationError(
+                    {"reward": "У приятной привычки не может быть вознаграждения."}
+                )
             if self.linked_habit is not None:
-                raise ValidationError({"linked_habit": "У приятной привычки не может быть связанной привычки."})
+                raise ValidationError(
+                    {
+                        "linked_habit": "У приятной привычки не может быть связанной привычки."
+                    }
+                )
 
         # 4) Полезная привычка: нельзя одновременно и reward, и linked_habit
         if not self.is_pleasant:
             if reward_filled and self.linked_habit is not None:
-                raise ValidationError("Нельзя одновременно указывать вознаграждение и связанную привычку.")
+                raise ValidationError(
+                    "Нельзя одновременно указывать вознаграждение и связанную привычку."
+                )
 
         # 5) В связанные могут попадать только 'приятные' привычки
         if self.linked_habit is not None and not self.linked_habit.is_pleasant:
-            raise ValidationError({"linked_habit": "В связанные могут попадать только привычки с признаком 'приятной'."})
+            raise ValidationError(
+                {
+                    "linked_habit": "В связанные могут попадать только привычки с признаком 'приятной'."
+                }
+            )
 
         # 6) Запрет на самоссылку
         if self.pk and self.linked_habit_id == self.pk:
-            raise ValidationError({"linked_habit": "Нельзя связывать привычку саму с собой."})
+            raise ValidationError(
+                {"linked_habit": "Нельзя связывать привычку саму с собой."}
+            )
 
     def __str__(self):
         kind = "приятная" if self.is_pleasant else "полезная"
