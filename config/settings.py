@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     "habits",
     "telegramer",
+    "users",
 
 ]
 

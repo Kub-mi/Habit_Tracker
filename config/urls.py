@@ -32,4 +32,6 @@ urlpatterns = [
 
     # Привычки (подключим router из приложения habits)
     path("api/v1/", include("habits.urls")),
+
+    path("api/v1/", include("users.urls")),
 ]
