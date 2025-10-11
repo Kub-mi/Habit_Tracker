@@ -14,12 +14,19 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+def _split_env_list(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
@@ -31,7 +38,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv("DEBUG") == "True" else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = _split_env_list(os.getenv("ALLOWED_HOSTS")) or [
+    "localhost",
+    "127.0.0.1",
+    "testserver",
+]
 
 
 # Application definition
@@ -54,9 +65,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -161,6 +172,18 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+# --- CORS ---
+cors_origins = _split_env_list(os.getenv("CORS_ALLOWED_ORIGINS"))
+CORS_ALLOWED_ORIGINS = cors_origins
+CORS_ALLOW_ALL_ORIGINS = (
+    os.getenv("CORS_ALLOW_ALL", "False") == "True" or not cors_origins
+)
+CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "False") == "True"
+
+extra_headers = _split_env_list(os.getenv("CORS_ALLOW_HEADERS"))
+if extra_headers:
+    CORS_ALLOW_HEADERS = list(default_headers) + extra_headers
+
 # --- Celery / Redis ---
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get(
@@ -169,7 +192,6 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_SOFT_TIME_LIMIT = 30
 
-from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     # Периодическая рассылка напоминаний раз в минуту
